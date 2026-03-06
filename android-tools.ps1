@@ -181,7 +181,7 @@ function Resolve-AvdName {
         return $AllAvds[0]
     }
 
-    throw 'No AVDs found. Create one from Android Studio Device Manager first.'
+    throw 'No AVDs found. Create an Android emulator first in Android Studio Device Manager, then run `emu list` and `emu run` again.'
 }
 
 function Start-Adb {
