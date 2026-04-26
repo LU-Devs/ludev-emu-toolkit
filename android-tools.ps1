@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('run','fix','list','status','stop','kill','init','doctor')]
+    [ValidateSet('run','fix','list','status','stop','kill','init','doctor','close','quit','exit')]
     [string]$Action = 'status',
     [string]$AvdName,
     [switch]$ColdBoot,
@@ -231,6 +231,14 @@ function Stop-EmulatorsGracefully {
     Start-Sleep -Seconds 2
 }
 
+function Close-EmulatorStack {
+    param([string]$AdbPath)
+
+    Start-Adb -AdbPath $AdbPath
+    Stop-EmulatorsGracefully -AdbPath $AdbPath
+    Kill-EmulatorProcesses
+}
+
 function Kill-EmulatorProcesses {
     Stop-Process -Name emulator -Force -ErrorAction SilentlyContinue
     Stop-Process -Name qemu-system-x86_64 -Force -ErrorAction SilentlyContinue
@@ -254,7 +262,12 @@ function Start-Avd {
 }
 
 try {
-    switch ($Action) {
+    $normalizedAction = $Action.ToLowerInvariant()
+    if ($normalizedAction -in @('close', 'quit', 'exit')) {
+        $normalizedAction = 'close'
+    }
+
+    switch ($normalizedAction) {
         'init' {
             $tools = Get-ToolPaths
             Ensure-ToolPathsInUserEnvironment -SdkRoot $tools.SdkRoot
@@ -295,6 +308,13 @@ try {
             Start-Adb -AdbPath $tools.Adb
             Stop-EmulatorsGracefully -AdbPath $tools.Adb
             Show-Devices -AdbPath $tools.Adb
+        }
+
+        'close' {
+            $tools = Get-ToolPaths
+            Close-EmulatorStack -AdbPath $tools.Adb
+            Show-Devices -AdbPath $tools.Adb
+            Write-Output 'Closed emulator gracefully and stopped emulator/qemu/adb processes.'
         }
 
         'run' {

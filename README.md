@@ -29,6 +29,8 @@ Scripts de apoyo para ejecutar y recuperar el emulador Android desde terminal.
   - Muestra ruta del SDK y `adb devices -l`.
 - `emu stop`
   - Cierre elegante usando `adb emu kill`.
+- `emu close` | `emu quit` | `emu exit`
+  - Cierre completo: intenta cierre elegante y luego detiene procesos relacionados (`emulator/qemu/adb`).
 - `emu fix`
   - Cierra procesos trabados (`emulator/qemu/adb`) y vuelve a iniciar el AVD.
 - `emu fix <AVD_NAME>`
